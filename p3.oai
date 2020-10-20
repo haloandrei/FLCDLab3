@@ -1,0 +1,33 @@
+hello 
+
+int n~ listen; 
+
+int A`100`; 
+
+int it; 
+
+for(0 ...it... it<~ (n-1)); 
+
+{ A:it ~ listen;} 
+
+ 
+
+Int s~ 0; 
+
+ 
+
+1 ...it... n; 
+
+{ s ~ s + A:it;} 
+
+  
+
+scream ~ s; 
+
+acum;
+
+ 
+
+bye ~ 0;
+
+leave✋;

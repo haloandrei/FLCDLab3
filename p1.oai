@@ -1,0 +1,18 @@
+hello 
+
+int a ~ 4; 
+
+int b ~ 6; 
+
+int c ~ 3; 
+
+
+int max ~  a ?> b  ; 
+
+int max ~ max ?> c ; 
+
+ 
+
+bye ~ 0; 
+
+leave✋; 
