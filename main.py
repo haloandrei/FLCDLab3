@@ -1,3 +1,5 @@
+import re
+
 
 class HashTable(object):
     def __init__(self, length = 17):
@@ -53,6 +55,11 @@ class OaiScanner(object):
         self.PIF = []
         self.ST = HashTable(3)
         self.getTokens()
+        self.word = ""
+        self.stringFlag = False
+        self.operatorFlag = False
+        self.specialChrFlag = False
+
 
     def getTokens(self):
         file = open(self.tokenFile, "r")
@@ -70,11 +77,69 @@ class OaiScanner(object):
 
     def detectFurtherOperators(self,op,newch):
         operatorNew = op + newch
-        for i in self.tokenFile:
-            if i[1].find(operatorNew):
+        for i in self.specTokens:
+            if i[1].find(operatorNew) != -1:
                 return True
         return False
+    #
+    # def splitOnTokens(self):
+    #     file = open(self.programFile, "r")
+    #     while (True):
+    #         line = file.readline()
+    #         if not line:
+    #             break
+    #         for i in self.specTokens:
+    #             prings = "\"(" + i[1] + ")\""
+    #             mapTokens = {}
+    #             words = {}
+    #
+    #         print(line)
 
+    def checkLetter(self, i):
+        if i in [" ", ";", "\n"] and self.stringFlag!=True:
+            self.procesIndex(self.word)
+            self.operatorFlag = False
+            self.procesIndex(i)
+            return
+        if self.operatorFlag:
+            if self.detectFurtherOperators(self.word, i):
+                self.word += i
+                return
+            else:
+                self.procesIndex(self.word)
+                self.operatorFlag = False
+                self.checkLetter(i)
+                return
+        if i in ["?", "<", ">", "~", ".","(",")","{","}",":","+","-","/","*","#"]:
+            self.procesIndex(self.word)
+            self.operatorFlag = True
+            self.word += i
+            return
+        if i=="\"" and self.stringFlag!=True:
+            self.stringFlag = True
+            self.procesIndex(self.word)
+            self.word = i
+            return
+        if self.stringFlag:
+            if self.specialChrFlag:
+                self.word += i
+                self.specialChrFlag = False
+                return
+            else:
+                if i == "\\":
+                    self.specialChrFlag = True
+                    return
+                else:
+                    if i == "\"":
+                        self.word += i
+                        self.procesIndex(self.word)
+                        self.stringFlag = False
+                        return
+                    else:
+                        self.word += i
+                        return
+        self.word += i
+        return
     def splitProgram(self):
         file = open(self.programFile, "r")
 
@@ -82,52 +147,33 @@ class OaiScanner(object):
             line = file.readline()
             if not line:
                 break
-            word = ""
-            stringFlag = False
-            operatorFlag = False
 
-            specialChrFlag = False
             for i in line:
-                if i in [" ", ";"]:
-                    self.procesIndex(word)
-                if i in ["?","<",">",":","."]:
-                    operatorFlag = True
-                    self.procesIndex(word)
-                    word = i
-                if operatorFlag:
-                    if self.detectFurtherOperators(word,i):
-                        word += i
-                    else:
-                        self.procesIndex(word)
-                        word = i
-
-
-                if stringFlag:
-                    if specialChrFlag:
-                        word += i
-                    else:
-                        if i == "\\":
-                            specialChrFlag = True
-                        else:
-                            if i == "\"":
-                                word += i
-                                self. procesIndex(word)
-
-
-
-                    word+= i
+                self.checkLetter(i)
 
         file.close()
+    def isConst(self, word):
+        if word[0] in ["0","1","2","3","4","5","6","7","8","9", "\""]:
+            return True
+        return False
 
     def procesIndex(self, word):
-        for i in self.tokenFile:
-            if word in i:
-                print("reserved")
+        #check for .. as error
+        self.word = ""
+        if word == "" or word == "\n" or word == " ":
+            return
+        for i in self.specTokens:
+            if i[1]==word:
+                self.PIF.append([word, -1])
                 return
-        print(word + "identif or const")
-
+        if self.isConst(word):
+            self.PIF.append(["const", self.ST.fill+1])
+        else: self.PIF.append(["id", self.ST.fill+1])
+        self.ST.add(word)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p1.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
-    sc.procesIndex("~")
+    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p2.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
+    sc.splitProgram()
+    for i in sc.PIF:
+        print(i)
