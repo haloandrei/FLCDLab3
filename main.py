@@ -38,7 +38,7 @@ class HashTable(object):
             return None
 
     def double(self):
-        print("hashTable expanded")
+        # print("hashTable expanded")
         newHtb = HashTable(len(self.array) * 2)
         for i in range(len(self.array)):
             if self.array[i] is None:
@@ -59,6 +59,7 @@ class OaiScanner(object):
         self.stringFlag = False
         self.operatorFlag = False
         self.specialChrFlag = False
+        self.vectorLenght = False
 
 
     def getTokens(self):
@@ -96,22 +97,36 @@ class OaiScanner(object):
     #         print(line)
 
     def checkLetter(self, i):
-        if i in [" ", ";", "\n"] and self.stringFlag!=True:
+        if i in [" ", ";","`","'", "\n"] and self.stringFlag!=True:
             self.procesIndex(self.word)
             self.operatorFlag = False
+            self.vectorLenght = False
             self.procesIndex(i)
             return
         if self.operatorFlag:
             if self.detectFurtherOperators(self.word, i):
                 self.word += i
+                if self.vectorLenght == True:
+                    self.procesIndex(self.word.split(".")[0])
+                    self.word = ".."
+                    self.vectorLenght = False
                 return
             else:
-                self.procesIndex(self.word)
+                if self.word[0] == "-" or self.word[0] == "+":
+                    if i in ["1","2","3","4","5","6","7","8","9"]:
+                        self.word += i
+                        self.operatorFlag = False
+                        return
+                if self.word[len(self.word)-1] != ".":
+                    self.procesIndex(self.word)
                 self.operatorFlag = False
+                self.vectorLenght = False
                 self.checkLetter(i)
                 return
-        if i in ["?", "<", ">", "~", ".","(",")","{","}",":","+","-","/","*","#"]:
-            self.procesIndex(self.word)
+        if i in ["?", "<", ">", "~","(",")",".","{","}",":","+","-","/","*","#"]:
+            if i != "." :
+                self.procesIndex(self.word)
+            else: self.vectorLenght = True
             self.operatorFlag = True
             self.word += i
             return
@@ -138,18 +153,28 @@ class OaiScanner(object):
                     else:
                         self.word += i
                         return
+            return
+
         self.word += i
         return
+
     def splitProgram(self):
         file = open(self.programFile, "r")
-
+        lineRow = 0
+        lineCollumn = 0
         while (True):
             line = file.readline()
             if not line:
                 break
-
+            lineCollumn = 0
+            lineRow += 1
             for i in line:
-                self.checkLetter(i)
+                lineCollumn +=1
+                try:
+                    self.checkLetter(i)
+                except Exception as e:
+                    print(e ,lineRow, ":" , lineCollumn , " has a lexical error")
+
 
         file.close()
     def isConst(self, word):
@@ -162,18 +187,131 @@ class OaiScanner(object):
         self.word = ""
         if word == "" or word == "\n" or word == " ":
             return
+        if self.isLexicallyWrong(word):
+            raise Exception(word + " is wrong")
         for i in self.specTokens:
             if i[1]==word:
                 self.PIF.append([word, -1])
                 return
         if self.isConst(word):
             self.PIF.append(["const", self.ST.fill+1])
-        else: self.PIF.append(["id", self.ST.fill+1])
+        else: self.PIF.append(["identifier", self.ST.fill+1])
         self.ST.add(word)
+
+    def isLexicallyWrong(self, word):
+        if word[0] == "0" and len(word)>1: return True
+        if word[0] in ["1","2","3","4","5","6","7","8","9"]:
+            for i in word:
+               if i not in ["0","1","2","3","4","5","6","7","8","9", "."]:
+                   return True
+        for i in word:
+            if i not in ["a",
+"s",
+"d",
+"f",
+"g",
+"h",
+"j",
+"k",
+"g",
+"l",
+";",
+"p",
+"o",
+"i",
+"y",
+"u",
+"t",
+"r",
+"e",
+"w",
+"q",
+"z",
+"x",
+"c",
+"v",
+"b",
+"n",
+"m",
+",",
+"m",
+".",
+"/",
+"1",
+"2",
+"3",
+"4",
+"5",
+"6",
+"7",
+"8",
+"9",
+"0",
+"-",
+"+",
+"`",
+"'",
+"<",
+">",
+"?",
+"{",
+"}",
+"\"",
+":",
+")",
+"(",
+"*",
+"#",
+"~",
+"✋",
+"Z",
+"X",
+"C",
+"V",
+"B",
+"N",
+"M",
+"A",
+"S",
+"D",
+"F",
+"G",
+"H",
+"J",
+"K",
+"L",
+"Q",
+"W",
+"E",
+"R",
+"T",
+"Y",
+"U",
+"I",
+"O",
+"P"]:
+                return True
+        return False
+
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p2.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
+    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p1.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
     sc.splitProgram()
+    f = open("PIF.out", "w")
+    strin =""
     for i in sc.PIF:
-        print(i)
+        strin += str(i[0]) + " : " + str(i[1])+ "\n"
+    f.write(strin)
+    f.close()
+    f = open("ST.out", "w")
+    f.write("ST is represented on a hashTable! \n")
+    for i in sc.ST.array:
+        if (i != None):
+            for j in i:
+                f.write(str(sc.ST.hash(j)) + " --> " +str(j))
+                f.write("\n")
+    f.close()
+    # for i in "asdfghjkgl;'poiyutrewqzxcvbnm,m./1234567890-+`<>?{}\":)(*#~✋ZXCVBNMASDFGHJKLQWERTYUIOP":
+    #     print("\""+i+"\",")

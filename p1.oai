@@ -1,10 +1,12 @@
 hello 
 
-int a ~ 4; 
+int a~4;
 
-int b ~ 6; 
+int b ~ -6;
 
-int c ~ 3;
+int c ~ +3;
+char as ~ 123.001;
+char ad ~ 'd';
 
 int max ~  a ?> b  ; 
 
