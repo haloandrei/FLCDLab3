@@ -1,6 +1,6 @@
 hello 
 
-int a~4;
+int a~0.1;
 
 int b ~ -6;
 

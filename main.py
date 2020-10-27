@@ -199,7 +199,7 @@ class OaiScanner(object):
         self.ST.add(word)
 
     def isLexicallyWrong(self, word):
-        if word[0] == "0" and len(word)>1: return True
+        if word[0] == "0" and len(word)>1 and word[1] != ".": return True
         if word[0] in ["1","2","3","4","5","6","7","8","9"]:
             for i in word:
                if i not in ["0","1","2","3","4","5","6","7","8","9", "."]:
@@ -297,7 +297,7 @@ class OaiScanner(object):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p3.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
+    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p1.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
     sc.splitProgram()
     f = open("PIF.out", "w")
     strin =""
