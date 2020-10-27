@@ -1,12 +1,12 @@
 hello 
-for(0 ... it ... it<~ (n-1));
+
 int n~ listen; 
 
 int A`100`;
 
 int it; 
 
-
+for(0 ... it ... it<~ (n-1));
 
 { A:it ~ listen;} 
 
@@ -16,9 +16,9 @@ Int s~ 0;
 
  
 
-1 ...it... n; 
+1 ...it... n;
 
-{ s ~ s + A:it;} 
+{ s ~ s + A:it;}
 
   
 

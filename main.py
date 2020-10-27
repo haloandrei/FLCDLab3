@@ -106,18 +106,18 @@ class OaiScanner(object):
         if self.operatorFlag:
             if self.detectFurtherOperators(self.word, i):
                 self.word += i
-                if self.vectorLenght == True:
-                    self.procesIndex(self.word.split(".")[0])
-                    self.word = ".."
-                    self.vectorLenght = False
                 return
+            elif self.vectorLenght == True and i == ".":
+                self.procesIndex(self.word.split(".")[0])
+                self.word = ".."
+                self.vectorLenght = False
             else:
                 if self.word[0] == "-" or self.word[0] == "+":
                     if i in ["1","2","3","4","5","6","7","8","9"]:
                         self.word += i
                         self.operatorFlag = False
                         return
-                if self.word[len(self.word)-1] != ".":
+                if self.word[len(self.word)-1] != "." or self.word == "...":
                     self.procesIndex(self.word)
                 self.operatorFlag = False
                 self.vectorLenght = False
@@ -297,7 +297,7 @@ class OaiScanner(object):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p1.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
+    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p3.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
     sc.splitProgram()
     f = open("PIF.out", "w")
     strin =""
