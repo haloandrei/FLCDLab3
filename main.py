@@ -178,7 +178,7 @@ class OaiScanner(object):
 
         file.close()
     def isConst(self, word):
-        if word[0] in ["0","1","2","3","4","5","6","7","8","9", "\""]:
+        if word[0] in ["0","1","2","3","4","5","6","7","8","9", "-","+","\""]:
             return True
         return False
 
@@ -194,8 +194,16 @@ class OaiScanner(object):
                 self.PIF.append([word, -1])
                 return
         if self.isConst(word):
+            fa = FA("C:\\work\\Coding\\Python\\FLCDLab4\\FAconst.in")
+            if fa.check(word) == False:
+                raise Exception("Wrong const" + word)
+                return
             self.PIF.append(["const", self.ST.fill+1])
-        else: self.PIF.append(["identifier", self.ST.fill+1])
+        else:
+            self.PIF.append(["identifier", self.ST.fill+1])
+            fa = FA("C:\\work\\Coding\\Python\\FLCDLab4\\FA.in")
+            if fa.check(word) == False:
+                raise Exception("Wrong identif" + word)
         self.ST.add(word)
 
     def isLexicallyWrong(self, word):
@@ -293,6 +301,75 @@ class OaiScanner(object):
                 return True
         return False
 
+
+
+class FA:
+    def __init__(self, fileName):
+        self.transitions = {}
+        self.initialState = ""
+        self.states = []
+        self.finalStates = []
+        self.alphabet = []
+        self.readFA(fileName)
+
+    def readFA(self,fileName):
+        file = open(fileName, "r")
+
+        for i in range(1,6):
+            line = file.readline()
+            if int(line) == i and i!=3 :
+                set = file.readline().split()
+                if i == 1:
+                    self.states = set
+                if i == 2:
+                    self.alphabet = set
+                if i == 4:
+                    self.initialState = set[0]
+                if i == 5:
+                    self.finalStates = set
+            elif i == 3:
+                transition = True
+                while(transition):
+
+                    trans = file.readline()
+                    if trans == "EOT\n":
+                        transition = False
+                        break
+                    tranzit = trans.split()
+                    self.transitions[(tranzit[0],tranzit[1])] = tranzit[2]
+
+        file.close()
+
+    def check(self, w):
+        currTransition = self.initialState
+        for i in w:
+            #print(currTransition,"->",i)
+            if (currTransition, i) in self.transitions:
+                currTransition = self.transitions[(currTransition, i)]
+            else:
+                return False
+        if currTransition in self.finalStates:
+            return True
+        else: return False
+
+    def menu(self):
+        exit = True
+        while(exit):
+            print("1 - print alphabet\n2 - print transitions\n3 - print initial state\n4 - print final states\n5 - print states\n6 - test\n")
+            comm = int(input())
+            if (comm == 1):
+                print(self.alphabet)
+            if (comm == 2):
+                print(self.transitions)
+            if (comm == 3):
+                print(self.initialState)
+            if (comm == 4):
+                print(self.finalStates)
+            if (comm == 5):
+                print(self.states)
+            if (comm == 6):
+                testCase = input()
+                print(self.check(testCase))
 
 
 # Press the green button in the gutter to run the script.
