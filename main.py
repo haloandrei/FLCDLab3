@@ -187,8 +187,8 @@ class OaiScanner(object):
         self.word = ""
         if word == "" or word == "\n" or word == " ":
             return
-        if self.isLexicallyWrong(word):
-            raise Exception(word + " is wrong")
+        # if self.isLexicallyWrong(word):
+        #     raise Exception(word + " is wrong")
         for i in self.specTokens:
             if i[1]==word:
                 self.PIF.append([word, -1])
@@ -196,14 +196,14 @@ class OaiScanner(object):
         if self.isConst(word):
             fa = FA("C:\\work\\Coding\\Python\\FLCDLab4\\FAconst.in")
             if fa.check(word) == False:
-                raise Exception("Wrong const" + word)
+                raise Exception("Wrong const " + word)
                 return
             self.PIF.append(["const", self.ST.fill+1])
         else:
             self.PIF.append(["identifier", self.ST.fill+1])
             fa = FA("C:\\work\\Coding\\Python\\FLCDLab4\\FA.in")
             if fa.check(word) == False:
-                raise Exception("Wrong identif" + word)
+                raise Exception("Wrong identif " + word)
         self.ST.add(word)
 
     def isLexicallyWrong(self, word):
@@ -302,19 +302,21 @@ class OaiScanner(object):
         return False
 
 
-
 class FA:
     def __init__(self, fileName):
         self.transitions = {}
+        self.allTransitions = []
         self.initialState = ""
         self.states = []
         self.finalStates = []
         self.alphabet = []
+        self.dfa = True
         self.readFA(fileName)
 
     def readFA(self,fileName):
         file = open(fileName, "r")
 
+        self.dfa = True
         for i in range(1,6):
             line = file.readline()
             if int(line) == i and i!=3 :
@@ -336,8 +338,10 @@ class FA:
                         transition = False
                         break
                     tranzit = trans.split()
+                    if (tranzit[0], tranzit[1]) in self.transitions:
+                        self.dfa = False
                     self.transitions[(tranzit[0],tranzit[1])] = tranzit[2]
-
+                    self.allTransitions.append([(tranzit[0],tranzit[1]),tranzit[2]])
         file.close()
 
     def check(self, w):
@@ -355,12 +359,12 @@ class FA:
     def menu(self):
         exit = True
         while(exit):
-            print("1 - print alphabet\n2 - print transitions\n3 - print initial state\n4 - print final states\n5 - print states\n6 - test\n")
+            print("1 - print alphabet\n2 - print transitions\n3 - print initial state\n4 - print final states\n5 - print states\n6 - test\n7 - Is deterministic\n")
             comm = int(input())
             if (comm == 1):
                 print(self.alphabet)
             if (comm == 2):
-                print(self.transitions)
+                print(self.allTransitions)
             if (comm == 3):
                 print(self.initialState)
             if (comm == 4):
@@ -370,11 +374,13 @@ class FA:
             if (comm == 6):
                 testCase = input()
                 print(self.check(testCase))
+            if (comm == 7):
+                print(self.dfa)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p1.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
+    sc = OaiScanner("C:\\work\\Coding\\Python\\FLCDLab3Scanner\\p1err.oai","C:\\work\\Coding\\Python\\FLCDLab3Scanner\\token.in")
     sc.splitProgram()
     f = open("PIF.out", "w")
     strin =""
