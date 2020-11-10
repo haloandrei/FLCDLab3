@@ -1,0 +1,21 @@
+Specification EBNF for FA.in
+
+Alphanumeric := “0” | …| “9” | Letters
+
+Letters := “a” |..| “z” | “A” | … | “Z”
+
+Space := “ ”
+
+State := Letters{Alphanumeric} 
+
+States := State space {State space} \n
+
+Alphabet := Alphanumeric Space {Alphanumeric Space} \n
+
+InitialState = State \n
+
+FinalStates = States \n
+
+Transitions = {State Alphanumeric State\n}
+
+S := 1 \n States \n 2 \n Alphabet \n 3 \n Transitions EOF \n 4 \n InitialState \n 5 \n FinalStates 
